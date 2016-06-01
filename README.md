@@ -68,9 +68,9 @@ Continue with our example:
 $tree->tinsert('mytree', '1', '3', [ 'before' => '4' ]);
 
 // Or:
-// redis.tinsert('mytree', '1', '3', [ 'after'=> '2' ]);
-// redis.tinsert('mytree', '1', '3', [ 'index'=> 1 ]);
-// redis.tinsert('mytree', '1', '3', [ 'index'=> -2 ]);
+// $tree->tinsert('mytree', '1', '3', [ 'after'=> '2' ]);
+// $tree->tinsert('mytree', '1', '3', [ 'index'=> 1 ]);
+// $tree->tinsert('mytree', '1', '3', [ 'index'=> -2 ]);
 ```
 
 Creates:
@@ -143,11 +143,11 @@ $tree->tinsert('mytree', '3', '1');
 Get the parents of the node. Returns an empty array when doesn't have parent.
 
 ```php
-$tree->tparent('mytree', '5'); // ['2']
-$tree->tparent('mytree', '1'); // []
-$tree->tparent('mytree', '4'); // ['5', '1']
-$tree->tparent('non-exists tree', '1'); // []
-$tree->tparent('mytree', 'non-exists node'); // []
+$tree->tparents('mytree', '5'); // ['2']
+$tree->tparents('mytree', '1'); // []
+$tree->tparents('mytree', '4'); // ['5', '1']
+$tree->tparents('non-exists tree', '1'); // []
+$tree->tparents('mytree', 'non-exists node'); // []
 ```
 
 The order of parents is random.

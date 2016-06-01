@@ -50,7 +50,7 @@ class RedisTree {
     var $redis;
     var $commands= [];
     function __construct($redis) {
-        $commands = (new LuaScriptLoad('__DIR__'.'/lua',$redis))->commands;
+        $commands = (new LuaScriptLoad($redis,'__DIR__'.'/lua'))->commands;
         $this->redis = $redis;
         
         foreach($commands as $command) {
