@@ -35,6 +35,7 @@ class LuaScriptLoad {
     
     function loadScript($name, $asArray = true) {
         $fn = $this->filepath. '/'. $name . '.lua';
+        print '<p>'.$fn.'</p>';
         return ( $asArray ? file($fn) : file_get_contents($fn));
     }
 
@@ -50,7 +51,7 @@ class RedisTree {
     var $redis;
     var $commands= [];
     function __construct($redis) {
-        $commands = (new LuaScriptLoad($redis,'__DIR__'.'/lua'))->commands;
+        $commands = (new LuaScriptLoad($redis,__DIR__.'/lua'))->commands;
         $this->redis = $redis;
         
         foreach($commands as $command) {
