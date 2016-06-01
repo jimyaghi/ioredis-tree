@@ -1,25 +1,19 @@
 # ioredis-tree
-A robust tree structure implementation for Redis
+A robust tree structure implementation for PHP Redis, ported from NodeJS version ioredis-tree
 
 [![Build Status](https://travis-ci.org/shimohq/ioredis-tree.svg?branch=master)](https://travis-ci.org/shimohq/ioredis-tree)
 [![Dependency Status](https://david-dm.org/shimohq/ioredis-tree.svg)](https://david-dm.org/shimohq/ioredis-tree)
 
-## Install
 
-```shell
-npm install ioredis-tree
-```
 
 ## Usage
 
-```javascript
-var Redis = require('ioredis');
-var redis = new Redis();
-
-var tree = require('ioredis-tree');
-tree(redis);
-
-redis.tinsert('files', 'parent', 'node');
+```php
+require_once('./RedisTree.php');
+$redis = new Redis();
+$redis->pconnect('127.0.0.1', 1000);
+$tree = new RedisTree($redis);
+$tree->tinsert('files', 'parent', 'node');
 ```
 
 ## API
@@ -30,8 +24,8 @@ Insert `node` to `parent`. If `parent` does not exist, a new tree with root of `
 
 #### Example
 
-```javascript
-redis.tinsert('mytree', '1', '2');
+```php
+$tree->tinsert('mytree', '1', '2');
 ```
 
 Creates:
@@ -46,8 +40,8 @@ Creates:
 +-----+
 ```
 
-```javascript
-redis.tinsert('mytree', '1', '4');
+```php
+$tree->tinsert('mytree', '1', '4');
 ```
 
 Creates:
@@ -70,13 +64,13 @@ Creates:
 
 Continue with our example:
 
-```javascript
-redis.tinsert('mytree', '1', '3', { before: '4' });
+```php
+$tree->tinsert('mytree', '1', '3', [ 'before' => '4' ]);
 
 // Or:
-// redis.tinsert('mytree', '1', '3', { after: '2' });
-// redis.tinsert('mytree', '1', '3', { index: 1 });
-// redis.tinsert('mytree', '1', '3', { index: -2 });
+// redis.tinsert('mytree', '1', '3', [ 'after'=> '2' ]);
+// redis.tinsert('mytree', '1', '3', [ 'index'=> 1 ]);
+// redis.tinsert('mytree', '1', '3', [ 'index'=> -2 ]);
 ```
 
 Creates:
@@ -91,8 +85,8 @@ Creates:
 +-----+ +-----+ +-----+
 ```
 
-```javascript
-redis.tinsert('mytree', '2', '5', { index: 1000 });
+```php
+$tree->tinsert('mytree', '2', '5', [ 'index' => 1000 ]);
 ```
 
 Creates:
@@ -113,8 +107,8 @@ Creates:
 
 A node can have multiple parents, say we insert `4` into `5`:
 
-```javascript
-redis.tinsert('mytree', '5', '4');
+```php
+$tree->tinsert('mytree', '5', '4');
 ```
 
 Creates:
@@ -139,8 +133,8 @@ Creates:
 
 It's not allowed to move a node into its posterity, which will lead an error:
 
-```javascript
-redis.tinsert('mytree', '3', '1');
+```php
+$tree->tinsert('mytree', '3', '1');
 // ERR parent node cannot be the posterity of new node
 ```
 
@@ -148,12 +142,12 @@ redis.tinsert('mytree', '3', '1');
 
 Get the parents of the node. Returns an empty array when doesn't have parent.
 
-```javascript
-redis.tparent('mytree', '5'); // ['2']
-redis.tparent('mytree', '1'); // []
-redis.tparent('mytree', '4'); // ['5', '1']
-redis.tparent('non-exists tree', '1'); // []
-redis.tparent('mytree', 'non-exists node'); // []
+```php
+$tree->tparent('mytree', '5'); // ['2']
+$tree->tparent('mytree', '1'); // []
+$tree->tparent('mytree', '4'); // ['5', '1']
+$tree->tparent('non-exists tree', '1'); // []
+$tree->tparent('mytree', 'non-exists node'); // []
 ```
 
 The order of parents is random.
@@ -162,16 +156,16 @@ The order of parents is random.
 
 Get the path between `from` and `to`. The depth of `from` must lower than `to`. Return `null` if `from` isn't a ancestor of `to`.
 
-```javascript
-redis.tpath('mytree', '1', '5'); // ['2']
-redis.tpath('mytree', '1', '3'); // []
-redis.tpath('mytree', '1', '7'); // null
+```php
+$tree->tpath('mytree', '1', '5'); // ['2']
+$tree->tpath('mytree', '1', '3'); // []
+$tree->tpath('mytree', '1', '7'); // null
 ```
 
 If there's more than one path between the two nodes, the shorter path will be returned:
 
-```javascript
-redis.tpath('mytree', '1', '4'); // []
+```php
+$tree->tpath('mytree', '1', '4'); // []
 ```
 
 ### TCHILDREN key node
@@ -184,37 +178,37 @@ Get the children of the node. Each node has at least two properties:
 If the `hasChild` is `true`, there will be an additional `children` property, which is an array containing the children of the node.
 
 
-```javascript
-redis.tchildren('mytree', '1');
+```php
+$tree->tchildren('mytree', '1');
 // [
-//   { node: '2', hasChild: true, children: [{ node: '5', hasChild: false }] },
-//   { node: '3', hasChild: false },
-//   { node: '4', hasChild: false }
+//   [ 'node' => '2', 'hasChild' => true, children => [[ 'node' => '5', 'hasChild' => false ]] ],
+//   [ 'node' => '3', 'hasChild' => false ],
+//   [ 'node' => '4', 'hasChild' => false ]
 // ]
-redis.tchildren('mytree', '5'); // []
-redis.tchildren('non-exists tree', '1'); // []
-redis.tchildren('mytree', 'non-exists node'); // []
+$tree->tchildren('mytree', '5'); // []
+$tree->tchildren('non-exists tree', '1'); // []
+$tree->tchildren('mytree', 'non-exists node'); // []
 ```
 
 `TCHILDREN` accepts a `LEVEL` option to specified how many levels of children to fetch:
 
-```javascript
-redis.tchildren('mytree', '1', { level: 1 });
+```php
+tree->tchildren('mytree', '1', [ 'level' => 1 ]);
 // [
-//   { node: '2', hasChild: true },
-//   { node: '3', hasChild: false },
-//   { node: '4', hasChild: false }
+//   [ 'node'=> '2', 'hasChild'=>  true ],
+//   [ 'node'=> '3', 'hasChild'=>  false ],
+//   [ 'node'=> '4', 'hasChild'=>  false ]
 // ]
 ```
 
-Notice that although node '2' has a child (its `hasChild` is `true`), it doesn't has the `children` property since we are only insterested in the first level children by specifying `{ level: 1 }`.
+Notice that although node '2' has a child (its `hasChild` is `true`), it doesn't has the `children` property since we are only insterested in the first level children by specifying `[ 'level' => 1 ]`.
 
 ### TREM key parent count node
 
 Remove the reference of a node from a parent.
 
-```javascript
-redis.trem('mytree', '5', 0, '4');
+```php
+$tree->trem('mytree', '5', 0, '4');
 ```
 
 Creates:
@@ -245,16 +239,16 @@ The `count` argument influences the operation in the following ways:
 
 Remove the node from all parents. Use `not` option to exclude a parent.
 
-```javascript
-redis.tmrem('mytree', '2', { not: '3' });
+```php
+$tree->tmrem('mytree', '2', [ 'not' => '3' ]);
 ```
 
 ### TDESTROY key node
 
 Destroy a node recursively and remove all references of it. Returns the count of nodes being deleted.
 
-```javascript
-redis.tdestroy('mytree', '2'); // returns 2, since "2" and "5" are deleted.
+```php
+$tree->tdestroy('mytree', '2'); // returns 2, since "2" and "5" are deleted.
 ```
 
 Creates:
@@ -275,25 +269,25 @@ Move all the children of the `sourceNode` to `targetNode`. By default the new no
 appended to the target node, if `PREPEND` option is passed, the new nodes will be prepended
 to the target node.
 
-```javascript
-redis.tmovechildren('mytree', 'source', 'target', 'PREPEND');
+```php
+$tree->tmovechildren('mytree', 'source', 'target', 'PREPEND');
 ```
 
 ### TEXISTS key node
 
 Returns if node exists.
 
-```javascript
-redis.texists('mytree', '2'); // 0
-redis.texists('mytree', '1'); // 1
+```php
+$tree->texists('mytree', '2'); // 0
+$tree->texists('mytree', '1'); // 1
 ```
 
 ### TRENAME key node name
 
 Rename a node.
 
-```javascript
-redis.trename('mytree', '2', '5');
+```php
+$tree->trename('mytree', '2', '5');
 ```
 
 Creates:
@@ -333,8 +327,8 @@ Given the following two trees:
 +-----+
 ```
 
-```javascript
-redis.tprune('mytree', '1');
+```php
+$tree->tprune('mytree', '1');
 ```
 
 Creates:
