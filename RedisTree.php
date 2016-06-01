@@ -35,7 +35,6 @@ class LuaScriptLoad {
     
     function loadScript($name, $asArray = true) {
         $fn = $this->filepath. '/'. $name . '.lua';
-        print '<p>'.$fn.'</p>';
         return ( $asArray ? file($fn) : file_get_contents($fn));
     }
 
