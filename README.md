@@ -1,8 +1,6 @@
 # phpredis-tree
 A robust tree structure implementation for PHP Redis, ported from NodeJS version ioredis-tree
 
-[![Build Status](https://travis-ci.org/shimohq/ioredis-tree.svg?branch=master)](https://travis-ci.org/shimohq/ioredis-tree)
-[![Dependency Status](https://david-dm.org/shimohq/ioredis-tree.svg)](https://david-dm.org/shimohq/ioredis-tree)
 
 
 ## Dependencies
